@@ -3,6 +3,7 @@ import { Direction } from "@/store/enums";
 export interface ICoordinate {
   x: number;
   y: number;
+  type: string;
 }
 
 export interface ISnake {

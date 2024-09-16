@@ -66,7 +66,7 @@ import VGrid from "@/components/Grid.vue";
 import VPlayground from "@/components/Playground.vue";
 import VSocialLinks from "@/components/SocialLinks.vue";
 
-const GRID_SIZE = 35;
+const GRID_SIZE = 15;
 const DIRECTION_TICKS_WITHOUT_BORDERS = {
   UP: (x: number, y: number) => ({ x, y: y <= 0 ? GRID_SIZE - 1 : y - 1 }),
   DOWN: (x: number, y: number) => ({ x, y: y >= GRID_SIZE - 1 ? 0 : y + 1 }),
@@ -129,6 +129,8 @@ export default {
     const snakeTail: ComputedRef<ICoordinate[]> = computed(() =>
       store.state.snake.coordinates.slice(1)
     );
+    const snackImages:ComputedRef<string> = computed(() => store.state.snackImages);
+
     const score: ComputedRef<number> = computed(
       () => store.state.snake?.coordinates?.length - 1
     );
@@ -151,6 +153,7 @@ export default {
       return {
         y: getRandomNumber(1, GRID_SIZE - 1),
         x: getRandomNumber(1, GRID_SIZE - 1),
+        type: snackImages.value[getRandomNumber(0,2)]
       };
     }
 
@@ -187,7 +190,10 @@ export default {
     function generateSnake() {
       const snake = {
         coordinates: [
-          { x: Math.ceil(GRID_SIZE / 2), y: Math.ceil(GRID_SIZE / 2) },
+          { x: Math.ceil(GRID_SIZE / 2),
+            y: Math.ceil(GRID_SIZE / 2),
+            type:"snake-head.png",
+          },
         ],
       };
 
@@ -198,17 +204,20 @@ export default {
       const snack = {
         coordinate: getRandomSnackCoordinate(),
       };
-
       store.commit("SET_SNACK", snack);
     }
 
     function generateInitials() {
       resetGame();
+      generateSnackImages();
       generateGrid();
       generateSnake();
       generateSnack();
-    }
 
+    }
+    function generateSnackImages(){
+      store.commit("SET_SNACK_IMAGES", ["snack-1.png","snack-2.png","snack-3.png"]);
+    }
     function resetGame() {
       store.commit("RESET_GAME");
     }

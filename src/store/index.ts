@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import { Direction } from "@/store/enums";
-import { areOppositeDirections, areSameCoordinates } from "@/utils/index";
+import { areOppositeDirections, areSameCoordinates,shiftCoordinateTypes } from "@/utils/index";
 import { IStore } from "./interfaces";
 
 const store = createStore({
@@ -30,6 +30,9 @@ const store = createStore({
     SET_SNACK(state, snack) {
       state.snack = snack;
     },
+    SET_SNACK_IMAGES(state, images) {
+      state.snackImages = images;
+    },
     RESET_GAME(state) {
       state.grid = [];
       state.snack = undefined;
@@ -48,11 +51,11 @@ const store = createStore({
       if (!state.snack) return;
       const isSnakeEating = payload.isSnakeEating;
       if (isSnakeEating) state.tickRate += 1;
-
       const snakeHead_new = payload.directionTicks[state.playground.direction](
         payload.snakeHead.x,
         payload.snakeHead.y
       );
+
       const snakeNeck = state.snake.coordinates[1];
 
       const snakeHead =
@@ -85,7 +88,15 @@ const store = createStore({
         ? payload.snackRandomCoordinate
         : state.snack.coordinate;
 
-      state.snake.coordinates = [snakeHead, ...snakeTail];
+      snakeHead.type = state.snake.coordinates[0].type;
+      state.snake.coordinates = [snakeHead,...state.snake.coordinates];
+      state.snake.coordinates = shiftCoordinateTypes(state.snake.coordinates);
+      if (isSnakeEating){
+        state.snake.coordinates[state.snake.coordinates.length-1].type = state.snack.coordinate.type
+      }else{
+        state.snake.coordinates.pop();
+      }
+
       state.snack.coordinate = snackCoordinate;
     },
     GAME_OVER(state) {
